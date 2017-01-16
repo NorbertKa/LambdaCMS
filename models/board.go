@@ -74,6 +74,26 @@ func Board_GetById(db *DB, id int) (*Board, error) {
 	return &board, nil
 }
 
+func Board_GetByTitle(db *DB, title string) (*Board, error) {
+	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board WHERE title = $1", title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	board := Board{}
+	for rows.Next() {
+		err := rows.Scan(&board.Id, &board.UserId, &board.Title, &board.MiniDescription, &board.FullDescription, &board.Image)
+		if err != nil {
+			return nil, err
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return &board, nil
+}
+
 func Board_GetByUserId(db *DB, id int) (Boards, error) {
 	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board WHERE userId = $1", id)
 	if err != nil {
@@ -101,7 +121,7 @@ func (b Board) Create(db *DB) error {
 	if err != nil {
 		return err
 	}
-	stmt, err := db.Postgre.Prepare("INSERT INTO board(userId, title, miniDescription, fullDescription, image) VALUES($1, $2, $3, $4)")
+	stmt, err := db.Postgre.Prepare("INSERT INTO board(userId, title, miniDescription, fullDescription, image) VALUES($1, $2, $3, $4, $5)")
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,47 @@ func (h Handler) User_Get(w http.ResponseWriter, r *http.Request, ps httprouter.
 	}
 	type Resp struct {
 		Response Response
-		User     db.User
+		User     *db.User `json:"user,omitempty"`
+	}
+	if user.Id == 0 {
+		response := Response{
+			Status:  false,
+			Message: "User not found",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+		return
 	}
 	response := Response{
 		Status:  true,
@@ -37,7 +77,7 @@ func (h Handler) User_Get(w http.ResponseWriter, r *http.Request, ps httprouter.
 	user.Password = ""
 	resp := Resp{
 		Response: response,
-		User:     user,
+		User:     &user,
 	}
 	ContentType := r.Header.Get("Response-Content-Type")
 	if ContentType == "" || ContentType == "application/json" {
