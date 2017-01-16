@@ -6,7 +6,7 @@ const ErrResponseUnsupportedContentType string = "{\"status\" : false, \"message
 type Response struct {
 	Status  bool   `json:"status"`
 	Message string `json:"message"`
-	ErrCode *int   `json:"errCode,omitempty"`
+	ErrCode int    `json:"errCode,omitempty"`
 }
 
 func newResponse() Response {

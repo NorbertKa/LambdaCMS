@@ -53,5 +53,7 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", handler.Index_GET)
 
+	router.GET("/users", handler.Users_Get)
+	router.POST("/user", handler.User_Post)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), router))
 }
