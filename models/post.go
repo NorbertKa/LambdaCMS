@@ -15,6 +15,50 @@ type Post struct {
 
 type Posts []Post
 
+func Post_GetAllBody(db *DB, body string) (Posts, error) {
+	rows, err := db.Postgre.Query("SELECT id, userId, boardId, title, body, posted, upvotes, downvotes FROM post WHERE body LIKE '%' || $1 || '%' ORDER BY title DESC LIMIT 20", body)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	post := Post{}
+	var posts Posts
+	for rows.Next() {
+		err := rows.Scan(&post.Id, &post.UserId, &post.BoardId, &post.Title, &post.Body, &post.Posted, &post.Upvotes, &post.Downvotes)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+func Post_GetAllTitle(db *DB, title string) (Posts, error) {
+	rows, err := db.Postgre.Query("SELECT id, userId, boardId, title, body, posted, upvotes, downvotes FROM post WHERE title LIKE '%' || $1 || '%' ORDER BY title DESC LIMIT 20", title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	post := Post{}
+	var posts Posts
+	for rows.Next() {
+		err := rows.Scan(&post.Id, &post.UserId, &post.BoardId, &post.Title, &post.Body, &post.Posted, &post.Upvotes, &post.Downvotes)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
 func Post_GetAll(db *DB) (Posts, error) {
 	rows, err := db.Postgre.Query("SELECT id, userId, boardId, title, body, posted, upvotes, downvotes FROM post")
 	if err != nil {
@@ -145,6 +189,18 @@ func (p Post) Update(db *DB) error {
 		return err
 	}
 	_, err = stmt.Exec(p.Title, p.Body, p.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p Post) Delete(db *DB) error {
+	stmt, err := db.Postgre.Prepare("DELETE FROM post WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
 	if err != nil {
 		return err
 	}

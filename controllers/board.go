@@ -508,6 +508,150 @@ func (h Handler) Boards_GET_LIMIT(w http.ResponseWriter, r *http.Request, ps htt
 	}
 }
 
+func (h Handler) Board_GET_Posts(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	type Resp struct {
+		Response Response
+		Posts    db.Posts
+	}
+	boardId := ps.ByName("ID")
+	boardId_int, err := strconv.Atoi(boardId)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	board, err := db.Board_GetById(h.DB, boardId_int)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if board.Id == 0 {
+		response := Response{
+			Status:  false,
+			Message: "Board not found",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+		return
+	}
+	posts, err := db.Post_GetAllByBoardId(h.DB, boardId_int)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if posts == nil {
+		response := Response{
+			Status:  false,
+			Message: "No posts found",
+		}
+		resp := Resp{
+			Response: response,
+			Posts:    db.Posts{},
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	} else {
+		response := Response{
+			Status:  true,
+			Message: "List of Posts",
+		}
+		resp := Resp{
+			Response: response,
+			Posts:    posts,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+}
+
 func (h Handler) Board_UPDATE(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	type Resp struct {
 		Response Response
