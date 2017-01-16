@@ -4,10 +4,70 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
+	"strconv"
 
 	"github.com/NorbertKa/LambdaCMS/models"
 	"github.com/julienschmidt/httprouter"
 )
+
+func (h Handler) User_Get(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	id := ps.ByName("ID")
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	user, err := db.User_GetById(h.DB, id_int)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	type Resp struct {
+		Response Response
+		User     db.User
+	}
+	response := Response{
+		Status:  true,
+		Message: "User found",
+	}
+	user.Password = ""
+	resp := Resp{
+		Response: response,
+		User:     user,
+	}
+	ContentType := r.Header.Get("Response-Content-Type")
+	if ContentType == "" || ContentType == "application/json" {
+		js, err := json.Marshal(resp)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseInternalServerError))
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	} else if ContentType == "application/xml" {
+		x, err := xml.MarshalIndent(resp, "", "  ")
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseInternalServerError))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/xml")
+		w.Write(x)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseUnsupportedContentType))
+		return
+	}
+}
 
 func (h Handler) User_Post(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Resp struct {

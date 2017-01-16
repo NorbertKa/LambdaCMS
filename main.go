@@ -55,8 +55,10 @@ func main() {
 
 	router.GET("/users", handler.Users_Get)
 	router.POST("/user", handler.User_Post)
+	router.GET("/user/:ID", handler.User_Get)
 	router.POST("/login", handler.Login_POST)
 	router.GET("/login", handler.Login_GET)
 	router.GET("/tokens", handler.Token_GET)
+	router.GET("/admin/getadmin", handler.Admin_GETADMIN)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), router))
 }

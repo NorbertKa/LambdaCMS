@@ -42,14 +42,14 @@ func User_GetAll(db *DB) (Users, error) {
 }
 
 func User_GetById(db *DB, id int) (User, error) {
-	rows, err := db.Postgre.Query("SELECT id, username, role, registered, lastLogin FROM userprofile WHERE id = $1", id)
+	rows, err := db.Postgre.Query("SELECT id, username, password, role, registered, lastLogin FROM userprofile WHERE id = $1", id)
 	if err != nil {
 		return User{}, err
 	}
 	defer rows.Close()
 	user := User{}
 	for rows.Next() {
-		err := rows.Scan(&user.Id, &user.Username, &user.Role, &user.Registered, &user.LastLogin)
+		err := rows.Scan(&user.Id, &user.Username, &user.Password, &user.Role, &user.Registered, &user.LastLogin)
 		if err != nil {
 			return User{}, err
 		}
@@ -97,9 +97,14 @@ func (u User) Create(db *DB) error {
 	if err != nil {
 		return err
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
+	hash := []byte{}
+	if len(u.Hash) == 0 {
+		hash, err = bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+	} else {
+		hash = []byte(u.Hash)
 	}
 	_, err = stmt.Exec(u.Username, string(hash), u.Role)
 	if err != nil {
@@ -122,6 +127,22 @@ func (u User) Update(db *DB) error {
 		return err
 	}
 	_, err = stmt.Exec(string(hash), u.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u User) Update_Role(db *DB, role string) error {
+	err := u.Validate()
+	if err != nil {
+		return err
+	}
+	stmt, err := db.Postgre.Prepare("UPDATE userprofile SET role = $1 WHERE id = $2")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(role, u.Id)
 	if err != nil {
 		return err
 	}
