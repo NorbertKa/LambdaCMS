@@ -276,6 +276,200 @@ func (h Handler) Post_GET(w http.ResponseWriter, r *http.Request, ps httprouter.
 	}
 }
 
+func (h Handler) Post_Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	type Resp struct {
+		Response Response
+		Post     *db.Post `json:"post,omitempty"`
+	}
+	postId := ps.ByName("ID")
+	postId_int, err := strconv.Atoi(postId)
+	if err != nil {
+		fmt.Println(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	token := r.Header.Get("token")
+	decodedToken, err := jwt.DecodeToken(token, h.Conf.Secret)
+	if err != nil {
+		response := Response{
+			Status:  false,
+			Message: "Invalid token",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				fmt.Println(err)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				fmt.Println(err)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+		return
+	}
+	post, err := db.Post_GetById(h.DB, postId_int)
+	if err != nil {
+		fmt.Println(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if post.Id == 0 {
+		response := Response{
+			Status:  false,
+			Message: "Post not found",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+		return
+	}
+	if post.UserId != decodedToken.UserId {
+		response := Response{
+			Status:  false,
+			Message: "Invalid token",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+		return
+	} else {
+		err = post.Delete(h.DB)
+		if err != nil {
+			fmt.Println(err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseInternalServerError))
+			return
+		}
+		response := Response{
+			Status:  true,
+			Message: "Post Deleted",
+		}
+		resp := Resp{
+			Response: response,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+			return
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+			return
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+}
+
 func (h Handler) Post_Update(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	err := r.ParseForm()
 	if err != nil {
