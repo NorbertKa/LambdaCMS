@@ -77,7 +77,7 @@ func Board_GetAllLimit(db *DB, limit int) (Boards, error) {
 }
 
 func Board_GetAllTitle(db *DB, title string) (Boards, error) {
-	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board WHERE title LIKE '%' || $1 || '%'", title)
+	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board WHERE title LIKE '%' || $1 || '%' ORDER BY title DESC LIMIT 20", title)
 	if err != nil {
 		return nil, err
 	}
@@ -181,11 +181,11 @@ func (b Board) Update(db *DB) error {
 	if err != nil {
 		return err
 	}
-	stmt, err := db.Postgre.Prepare("UPDATE board SET miniDescription = $1, fullDescription = $2, image = $3 WHERE id = $3")
+	stmt, err := db.Postgre.Prepare("UPDATE board SET miniDescription = $1, fullDescription = $2, image = $3 WHERE title = $3")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(b.MiniDescription, b.FullDescription, b.Id)
+	_, err = stmt.Exec(b.MiniDescription, b.FullDescription, b.Title)
 	if err != nil {
 		return err
 	}
