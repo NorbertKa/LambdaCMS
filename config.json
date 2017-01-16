@@ -1,0 +1,17 @@
+{
+    "port" : 8080,
+    "title" : "geddit",
+    "description" : "geddit",
+    "postgre" : {
+        "host" : "horton.elephantsql.com",
+        "port" : 5432,
+        "username" : "uzgvcusb",
+        "database" : "uzgvcusb",
+        "password" : "xHdGzS4uFYVleEi6wWdOTjz4Oqld0GS1"
+    },
+    "redis" : {
+        "host" : "localhost",
+        "port" : 6379,
+        "DB" : 0
+    }
+}
