@@ -33,7 +33,51 @@ func (b Board) Validate() error {
 }
 
 func Board_GetAll(db *DB) (Boards, error) {
-	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board")
+	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board ORDER BY id DESC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	board := Board{}
+	var boards Boards
+	for rows.Next() {
+		err := rows.Scan(&board.Id, &board.UserId, &board.Title, &board.MiniDescription, &board.FullDescription, &board.Image)
+		if err != nil {
+			return nil, err
+		}
+		boards = append(boards, board)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return boards, nil
+}
+
+func Board_GetAllLimit(db *DB, limit int) (Boards, error) {
+	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board ORDER BY id DESC LIMIT $1", limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	board := Board{}
+	var boards Boards
+	for rows.Next() {
+		err := rows.Scan(&board.Id, &board.UserId, &board.Title, &board.MiniDescription, &board.FullDescription, &board.Image)
+		if err != nil {
+			return nil, err
+		}
+		boards = append(boards, board)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return boards, nil
+}
+
+func Board_GetAllTitle(db *DB, title string) (Boards, error) {
+	rows, err := db.Postgre.Query("SELECT id, userId, title, miniDescription, fullDescription, image FROM board WHERE title LIKE '%' || $1 || '%'", title)
 	if err != nil {
 		return nil, err
 	}

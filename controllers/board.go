@@ -409,3 +409,231 @@ func (h Handler) Boards_GET(w http.ResponseWriter, r *http.Request, _ httprouter
 		}
 	}
 }
+
+func (h Handler) Boards_GET_LIMIT(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	limit := ps.ByName("LIMIT")
+	limit_int, err := strconv.Atoi(limit)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+
+	type Resp struct {
+		Response Response
+		Boards   db.Boards
+	}
+	boards, err := db.Board_GetAllLimit(h.DB, limit_int)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if boards == nil {
+		response := Response{
+			Status:  false,
+			Message: "No boards found",
+		}
+		resp := Resp{
+			Response: response,
+			Boards:   db.Boards{},
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	} else {
+		response := Response{
+			Status:  true,
+			Message: "List of Boards",
+		}
+		resp := Resp{
+			Response: response,
+			Boards:   boards,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+}
+
+func (h Handler) Boards_GET_TITLE(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	title := ps.ByName("TITLE")
+	type Resp struct {
+		Response Response
+		Boards   db.Boards
+	}
+	if title == "" {
+		response := Response{
+			Status:  false,
+			Message: "Title empty",
+		}
+		resp := Resp{
+			Response: response,
+			Boards:   db.Boards{},
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				fmt.Println(err)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+	boards, err := db.Board_GetAllTitle(h.DB, title)
+	if err != nil {
+		fmt.Println(err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if boards == nil {
+		response := Response{
+			Status:  false,
+			Message: "No boards found",
+		}
+		resp := Resp{
+			Response: response,
+			Boards:   db.Boards{},
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	} else {
+		response := Response{
+			Status:  true,
+			Message: "List of Boards",
+		}
+		resp := Resp{
+			Response: response,
+			Boards:   boards,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+}

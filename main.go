@@ -59,6 +59,8 @@ func main() {
 	router.POST("/board", handler.Board_POST)
 	router.GET("/board/:ID", handler.Board_GET)
 	router.GET("/boards", handler.Boards_GET)
+	router.GET("/boards/limit/:LIMIT", handler.Boards_GET_LIMIT)
+	router.GET("/boards/search/:TITLE", handler.Boards_GET_TITLE)
 	router.POST("/login", handler.Login_POST)
 	router.GET("/login", handler.Login_GET)
 	router.GET("/tokens", handler.Token_GET)
