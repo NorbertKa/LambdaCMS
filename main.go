@@ -1,14 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/NorbertKa/LambdaCMS/config"
+	"github.com/NorbertKa/LambdaCMS/controllers"
+	"github.com/NorbertKa/LambdaCMS/models"
 )
 
 const version string = "0.0.1"
 
 func main() {
+	migrationFlag := flag.Bool("m", true, "Migrate database UP or DOWN")
+	flag.Parse()
 	fmt.Println("[LambdaCMS]")
 	fmt.Println("[Version : " + version + "]")
 	conf, err := config.ReadConfig("config.json")
@@ -19,4 +24,24 @@ func main() {
 	fmt.Println("#=> TITLE: ", conf.Title)
 	fmt.Println("#=> DESC: ", conf.Description)
 	fmt.Println("====== Connecting to DB ======")
+	db, err := db.NewDB(conf)
+	if err != nil {
+		fmt.Println("[Error: " + err.Error() + "]")
+	} else {
+		fmt.Println("#=> SUCCESS")
+	}
+	fmt.Println("====== Running Migrations ======")
+	if *migrationFlag {
+		err := MigrateUp(conf)
+		for _, e := range err {
+			fmt.Println(e)
+		}
+	} else {
+		err := MigrateDown(conf)
+		for _, e := range err {
+			fmt.Println(e)
+		}
+	}
+	handler := controller.NewHandler()
+	handler.DB = db
 }
