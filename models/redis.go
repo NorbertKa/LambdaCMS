@@ -12,7 +12,9 @@ const (
 	ErrCantConnectToRedis string = "Cant connect to REDIS DB"
 )
 
-type Redis *redis.Client
+type Redis struct {
+	*redis.Client
+}
 
 func NewRedis(conf *config.Config) (*Redis, error) {
 	client := redis.NewClient(&redis.Options{
@@ -24,6 +26,6 @@ func NewRedis(conf *config.Config) (*Redis, error) {
 	if err != nil {
 		return nil, errors.New(ErrCantConnectToRedis)
 	}
-	var redis Redis = client
+	redis := Redis{client}
 	return &redis, nil
 }

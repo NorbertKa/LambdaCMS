@@ -3,8 +3,8 @@ package db
 import "github.com/NorbertKa/LambdaCMS/config"
 
 type DB struct {
-	Redis   Redis
-	Postgre Postgre
+	Redis   *Redis
+	Postgre *Postgre
 }
 
 func NewDB(conf *config.Config) (*DB, error) {
@@ -19,8 +19,8 @@ func NewDB(conf *config.Config) (*DB, error) {
 	}
 
 	db := DB{
-		Redis:   *redis,
-		Postgre: *postgre,
+		Redis:   redis,
+		Postgre: postgre,
 	}
 	return &db, nil
 }

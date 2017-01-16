@@ -9,7 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Postgre *sql.DB
+type Postgre struct {
+	*sql.DB
+}
 
 func NewPostgre(config *config.Config) (*Postgre, error) {
 	dbinfo := fmt.Sprintf("postgres://" + config.Postgre.Username + ":" + config.Postgre.Password + "@" + config.Postgre.Host + ":" + strconv.Itoa(config.Postgre.Port_Int()) + "/" + config.Postgre.Database)
@@ -21,6 +23,6 @@ func NewPostgre(config *config.Config) (*Postgre, error) {
 	if err != nil {
 		return nil, err
 	}
-	var postgre Postgre = db
+	postgre := Postgre{db}
 	return &postgre, nil
 }
