@@ -52,12 +52,16 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/", handler.Index_GET)
-
 	router.GET("/me/boards", handler.User_GetBoards)
+	router.GET("/me/posts", handler.User_GetPosts)
+	router.GET("/me/comments", handler.User_GetComments)
+	router.GET("/me", handler.Login_GET)
 	router.GET("/users", handler.Users_Get)
 	router.POST("/user", handler.User_Post)
 	router.GET("/user/:ID", handler.User_Get)
 	router.GET("/user/:ID/boards", handler.User_GetBoardsID)
+	router.GET("/user/:ID/posts", handler.User_GetPostsID)
+	router.GET("/user/:ID/comments", handler.User_GetCommentsID)
 	router.POST("/board", handler.Board_POST)
 	router.GET("/board/:ID", handler.Board_GET)
 	router.PUT("/board/:ID", handler.Board_UPDATE)
@@ -75,6 +79,10 @@ func main() {
 	router.DELETE("/post/:ID", handler.Post_Delete)
 	router.GET("/comments", handler.Comments_GET)
 	router.POST("/comment", handler.Comment_POST)
+	router.GET("/comment/:ID/comments", handler.Comment_GETComments)
+	router.GET("/comment/:ID", handler.Comment_GET)
+	router.PUT("/comment/:ID", handler.Comment_UPDATE)
+	router.DELETE("/comment/:ID", handler.Comment_DELETE)
 	router.GET("/admin/getadmin", handler.Admin_GETADMIN)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), router))
 }

@@ -1,16 +1,17 @@
 package db
 
 import "errors"
+import "database/sql"
 
 type Comment struct {
-	Id        int    `json:"id"`
-	UserId    int    `json:"userId"`
-	PostId    int    `json:"postId"`
-	CommentId int    `json:"commentId"`
-	Body      string `json:"body"`
-	Posted    string `json:"posted"`
-	Upvotes   int    `json:"upvotes"`
-	Downvotes int    `json:"downvotes"`
+	Id        int           `json:"id"`
+	UserId    int           `json:"userId"`
+	PostId    int           `json:"postId"`
+	CommentId sql.NullInt64 `json:"commentId"`
+	Body      string        `json:"body"`
+	Posted    string        `json:"posted"`
+	Upvotes   int           `json:"upvotes"`
+	Downvotes int           `json:"downvotes"`
 }
 
 type Comments []Comment
@@ -144,8 +145,8 @@ func (c Comment) Create(db *DB) error {
 	if post.Id <= 0 {
 		errors.New("Post not found")
 	}
-	if c.CommentId != 0 {
-		comment, err := Comment_GetById(db, c.CommentId)
+	if c.CommentId.Int64 != 0 {
+		comment, err := Comment_GetById(db, int(c.CommentId.Int64))
 		if err != nil {
 			return err
 		}
