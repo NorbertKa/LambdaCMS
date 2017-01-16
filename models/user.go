@@ -13,8 +13,8 @@ type User struct {
 	Password   string `json:"password,omitempty"`
 	Hash       string `json:"hash,omitempty"`
 	Role       string `json:"role"`
-	Registered string `json:"registered"`
-	LastLogin  string `json:"lastLogin"`
+	Registered string `json:"registered,omitempty"`
+	LastLogin  string `json:"lastLogin,omitempty"`
 }
 
 type Users []User

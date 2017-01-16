@@ -6,6 +6,7 @@ type Config struct {
 	Description string   `json:"description"`
 	Postgre     ConfigDB `json:"postgre"`
 	Redis       ConfigDB `json:"redis"`
+	Secret      string   `json:"secret"`
 }
 
 type ConfigDB struct {

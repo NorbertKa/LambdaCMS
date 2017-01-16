@@ -2,6 +2,7 @@
     "port" : 1337,
     "title" : "LambdaCMS",
     "description" : "LambdaCMS",
+    "secret" : "i3h43jh1324j;asdjf[aosdfuia[sdofadsjfiashgdfoupiasdfansdtuvypair",
     "postgre" : {
         "host" : "horton.elephantsql.com",
         "port" : 5432,
