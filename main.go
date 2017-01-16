@@ -3,10 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
 
 	"github.com/NorbertKa/LambdaCMS/config"
 	"github.com/NorbertKa/LambdaCMS/controllers"
 	"github.com/NorbertKa/LambdaCMS/models"
+	"github.com/julienschmidt/httprouter"
 )
 
 const version string = "0.0.1"
@@ -44,4 +48,10 @@ func main() {
 	}
 	handler := controller.NewHandler()
 	handler.DB = db
+	handler.Conf = conf
+
+	router := httprouter.New()
+	router.GET("/", handler.Index_GET)
+
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), router))
 }

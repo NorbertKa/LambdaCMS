@@ -1,13 +1,13 @@
 {
-    "port" : 8080,
-    "title" : "geddit",
-    "description" : "geddit",
+    "port" : 1337,
+    "title" : "LambdaCMS",
+    "description" : "LambdaCMS",
     "postgre" : {
         "host" : "horton.elephantsql.com",
         "port" : 5432,
-        "username" : "uzgvcusb",
-        "database" : "uzgvcusb",
-        "password" : "xHdGzS4uFYVleEi6wWdOTjz4Oqld0GS1"
+        "username" : "szamsmos",
+        "database" : "szamsmos",
+        "password" : "9qDzCTYHmLWoWV7Zhxk83iXC-7Ag4WvP"
     },
     "redis" : {
         "host" : "localhost",
