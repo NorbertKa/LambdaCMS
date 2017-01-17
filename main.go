@@ -11,11 +11,16 @@ import (
 	"github.com/NorbertKa/LambdaCMS/controllers"
 	"github.com/NorbertKa/LambdaCMS/models"
 	"github.com/julienschmidt/httprouter"
+	"github.com/rs/cors"
 )
 
 const version string = "0.0.1"
 
 func main() {
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "DELETE", "PUT", "OPTIONS"},
+	})
 	migrationFlag := flag.Bool("m", true, "Migrate database UP or DOWN")
 	flag.Parse()
 	fmt.Println("[LambdaCMS]")
@@ -76,6 +81,8 @@ func main() {
 	router.POST("/post", handler.Post_POST)
 	router.GET("/post/:ID", handler.Post_GET)
 	router.PUT("/post/:ID", handler.Post_Update)
+	router.GET("/post/:ID/upvote", handler.Post_UPVOTE)
+	router.GET("/post/:ID/downvote", handler.Post_DOWNVOTE)
 	router.GET("/post/:ID/comments", handler.Posts_GetComments)
 	router.DELETE("/post/:ID", handler.Post_Delete)
 	router.GET("/comments", handler.Comments_GET)
@@ -83,7 +90,9 @@ func main() {
 	router.GET("/comment/:ID/comments", handler.Comment_GETComments)
 	router.GET("/comment/:ID", handler.Comment_GET)
 	router.PUT("/comment/:ID", handler.Comment_UPDATE)
+	router.GET("/comment/:ID/upvote", handler.Comment_UPVOTE)
+	router.GET("/comment/:ID/downvote", handler.Comment_DOWNVOTE)
 	router.DELETE("/comment/:ID", handler.Comment_DELETE)
 	router.GET("/admin/getadmin", handler.Admin_GETADMIN)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), router))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(conf.Port_Int()), c.Handler(router)))
 }

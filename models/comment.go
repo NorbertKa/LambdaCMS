@@ -191,3 +191,51 @@ func (c Comment) Update(db *DB) error {
 	}
 	return nil
 }
+
+func (c Comment) Upvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE comment SET upvotes = upvotes + 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(c.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c Comment) RemoveUpvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE comment SET upvotes = upvotes - 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(c.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c Comment) Downvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE comment SET downvotes = downvotes + 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(c.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c Comment) RemoveDownvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE comment SET downvotes = downvotes - 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(c.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

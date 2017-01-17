@@ -206,3 +206,51 @@ func (p Post) Delete(db *DB) error {
 	}
 	return nil
 }
+
+func (p Post) Upvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE post SET upvotes = upvotes + 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p Post) RemoveUpvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE post SET upvotes = upvotes - 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p Post) Downvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE post SET downvotes = downvotes + 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p Post) RemoveDownvote(db *DB) error {
+	stmt, err := db.Postgre.Prepare("UPDATE post SET downvotes = downvotes - 1 WHERE id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(p.Id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
