@@ -76,6 +76,7 @@ func main() {
 	router.POST("/post", handler.Post_POST)
 	router.GET("/post/:ID", handler.Post_GET)
 	router.PUT("/post/:ID", handler.Post_Update)
+	router.GET("/post/:ID/comments", handler.Posts_GetComments)
 	router.DELETE("/post/:ID", handler.Post_Delete)
 	router.GET("/comments", handler.Comments_GET)
 	router.POST("/comment", handler.Comment_POST)

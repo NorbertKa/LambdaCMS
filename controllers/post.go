@@ -712,6 +712,103 @@ func (h Handler) Post_Update(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 }
 
+func (h Handler) Posts_GetComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	postId := ps.ByName("ID")
+	postId_int, err := strconv.Atoi(postId)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	type Resp struct {
+		Response Response
+		Comments db.Comments
+	}
+	comments, err := db.Comment_GetByPostId(h.DB, postId_int)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		w.Write([]byte(ErrResponseInternalServerError))
+		return
+	}
+	if comments == nil {
+		response := Response{
+			Status:  false,
+			Message: "No comments found",
+		}
+		resp := Resp{
+			Response: response,
+			Comments: db.Comments{},
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	} else {
+		response := Response{
+			Status:  true,
+			Message: "List of Comments",
+		}
+		resp := Resp{
+			Response: response,
+			Comments: comments,
+		}
+		ContentType := r.Header.Get("Response-Content-Type")
+		if ContentType == "" || ContentType == "application/json" {
+			js, err := json.Marshal(resp)
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(js)
+		} else if ContentType == "application/xml" {
+			x, err := xml.MarshalIndent(resp, "", "  ")
+			if err != nil {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				w.Write([]byte(ErrResponseInternalServerError))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/xml")
+			w.Write(x)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte(ErrResponseUnsupportedContentType))
+			return
+		}
+	}
+}
+
 func (h Handler) Posts_GET(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type Resp struct {
 		Response Response
